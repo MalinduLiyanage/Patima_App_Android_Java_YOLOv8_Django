@@ -15,6 +15,7 @@ import com.onesandzeros.patima.R;
 import com.onesandzeros.patima.SQLiteHelper;
 import com.onesandzeros.patima.prediction.activity.ViewComparisonActivity;
 import com.onesandzeros.patima.feedback.model.Feedback;
+import com.onesandzeros.patima.user.utils.ProfileManager;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -22,22 +23,20 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHolder>{
+public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHolder> {
 
-    private List<Feedback> feedbackList;
-    private Context context;
     boolean isSummaey;
     String userName = null, outputImage = null, inputImage = null;
     SQLiteHelper dbHelper;
     int userid;
+    private List<Feedback> feedbackList;
+    private Context context;
 
-    public FeedbackAdapter(List<Feedback> feedbackList, Context context, String name, SQLiteHelper dbHelper, boolean isSummaey, int userid) {
+    public FeedbackAdapter(List<Feedback> feedbackList, Context context, boolean isSummaey) {
         this.feedbackList = feedbackList;
         this.context = context;
-        this.userName = name;
-        this.dbHelper = dbHelper;
+        this.userName = ProfileManager.getProfileName(context);
         this.isSummaey = isSummaey;
-        this.userid = userid;
     }
 
     @NonNull
@@ -57,18 +56,18 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
         holder.ratingTxt.setText(String.valueOf(feedback.getRating()) + " out of 5");
         holder.usernameTxt.setText("By " + userName);
 
-        if(isSummaey){
+        if (isSummaey) {
             holder.feedbackImg.setVisibility(View.GONE);
             holder.feedbackuserImg.setVisibility(View.VISIBLE);
 
             String profilepicturePath = dbHelper.getProfilepicture(userid);
 
-            if(profilepicturePath.contains("http")){
+            if (profilepicturePath.contains("http")) {
                 Picasso.get()
                         .load(profilepicturePath)
                         .placeholder(R.drawable.placeholder_profile)
                         .into(holder.feedbackuserImg);
-            }else{
+            } else {
                 File imageFile = new File(profilepicturePath);
                 Picasso.get()
                         .load(imageFile)
@@ -76,13 +75,13 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
                         .into(holder.feedbackuserImg);
             }
 
-        }else{
-            if(outputImage.contains("http")){
+        } else {
+            if (outputImage.contains("http")) {
                 Picasso.get()
                         .load(outputImage)
                         .placeholder(R.drawable.placeholder_profile)
                         .into(holder.feedbackImg);
-            }else{
+            } else {
                 File imageFile = new File(outputImage);
                 Picasso.get()
                         .load(imageFile)

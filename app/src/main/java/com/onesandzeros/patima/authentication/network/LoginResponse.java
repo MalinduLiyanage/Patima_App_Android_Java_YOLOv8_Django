@@ -1,4 +1,6 @@
-package com.onesandzeros.patima.authentication.models;
+package com.onesandzeros.patima.authentication.network;
+
+import com.onesandzeros.patima.authentication.models.Token;
 
 public class LoginResponse {
     private String status;

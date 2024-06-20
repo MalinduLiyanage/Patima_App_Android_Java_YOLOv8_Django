@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.onesandzeros.patima.R;
-import com.onesandzeros.patima.authentication.models.AuthCommonResponse;
+import com.onesandzeros.patima.authentication.network.AuthCommonResponse;
 import com.onesandzeros.patima.authentication.network.AuthenticationApiService;
 import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.messages.activity.AdminContactActivity;

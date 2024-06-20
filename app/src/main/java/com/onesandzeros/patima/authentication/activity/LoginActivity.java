@@ -1,7 +1,6 @@
 package com.onesandzeros.patima.authentication.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,8 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 import com.onesandzeros.patima.MainActivity;
 import com.onesandzeros.patima.R;
-import com.onesandzeros.patima.authentication.models.LoginRequest;
-import com.onesandzeros.patima.authentication.models.LoginResponse;
+import com.onesandzeros.patima.authentication.network.LoginRequest;
+import com.onesandzeros.patima.authentication.network.LoginResponse;
 import com.onesandzeros.patima.authentication.network.AuthenticationApiService;
 import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.core.utils.Singleton;

@@ -1,10 +1,6 @@
 package com.onesandzeros.patima.authentication.network;
 
 
-import com.onesandzeros.patima.authentication.models.ForgotPasswordRequest;
-import com.onesandzeros.patima.authentication.models.LoginRequest;
-import com.onesandzeros.patima.authentication.models.LoginResponse;
-import com.onesandzeros.patima.authentication.models.AuthCommonResponse;
 import com.onesandzeros.patima.user.model.User;
 
 import retrofit2.Call;

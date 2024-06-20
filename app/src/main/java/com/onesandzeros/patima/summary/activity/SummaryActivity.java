@@ -24,15 +24,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.onesandzeros.patima.LocationAdapter;
 import com.onesandzeros.patima.R;
 import com.onesandzeros.patima.SQLiteHelper;
+import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.core.utils.UrlUtils;
 import com.onesandzeros.patima.feedback.activity.FeedbackActivity;
 import com.onesandzeros.patima.feedback.adapter.FeedbackAdapter;
 import com.onesandzeros.patima.feedback.model.Feedback;
+import com.onesandzeros.patima.feedback.network.FeedbackApiService;
+import com.onesandzeros.patima.feedback.network.FeedbackResponse;
 import com.onesandzeros.patima.prediction.model.Location;
 import com.onesandzeros.patima.user.utils.ProfileManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SummaryActivity extends AppCompatActivity {
 
@@ -131,59 +138,31 @@ public class SummaryActivity extends AppCompatActivity {
             feedbackBtn.setEnabled(false);
 
         } else {
-            loaduserFeedbacks();
+            loadPredictedFeedbacks();
         }
     }
 
-    private void loaduserFeedbacks() {
-
-        SharedPreferences sharedPreferences = getSharedPreferences("Startup", MODE_PRIVATE);
-        String username = sharedPreferences.getString("username", "");
-
-        dbHelper = new SQLiteHelper(this);
-        feedbackList = new ArrayList<>();
-        feedbackAdapter = new FeedbackAdapter(feedbackList, this, username, dbHelper, true, 0);
-
-        int count = 0;
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        feedbackContainer.setLayoutManager(layoutManager);
-        feedbackContainer.setAdapter(feedbackAdapter);
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = {"Feedback_Id", "Description", "Ratings", "Image_Id"};
-        String selection = "User_Id = ?";
-        String[] selectionArgs = {String.valueOf(0)};
-
-        Cursor cursor = db.query("FEEDBACK", projection, selection, selectionArgs, null, null, "Feedback_Id DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int feedback_Id = cursor.getInt(cursor.getColumnIndexOrThrow("Feedback_Id"));
-                String desc = cursor.getString(cursor.getColumnIndexOrThrow("Description"));
-                int rating = cursor.getInt(cursor.getColumnIndexOrThrow("Ratings"));
-                int image_Id = cursor.getInt(cursor.getColumnIndexOrThrow("Image_Id"));
-
-                if (image_Id == imgId) {
-                    Feedback feedback = new Feedback(feedback_Id, desc, rating, image_Id);
-                    feedbackList.add(feedback);
-                    count++;
-                } else {
-
+    private void loadPredictedFeedbacks() {
+        FeedbackApiService feedbackApiService = ApiClient.getClient(this).create(FeedbackApiService.class);
+        Call<FeedbackResponse> call = feedbackApiService.retrieveFeedbacksByPredId(imgId);
+        call.enqueue(new Callback<FeedbackResponse>() {
+            @Override
+            public void onResponse(Call<FeedbackResponse> call, Response<FeedbackResponse> response) {
+                if (response.isSuccessful()) {
+                    feedbackList = response.body().getFeedbacks();
+                    feedbackAdapter = new FeedbackAdapter(feedbackList, SummaryActivity.this, true);
+                    feedbackContainer.setLayoutManager(new LinearLayoutManager(SummaryActivity.this));
+                    feedbackContainer.setAdapter(feedbackAdapter);
                 }
+            }
 
-            } while (cursor.moveToNext());
-            cursor.close();
-            feedbackAdapter.notifyDataSetChanged();
-        } else {
+            @Override
+            public void onFailure(Call<FeedbackResponse> call, Throwable t) {
 
-        }
-        if (count == 0) {
-            detectTxt.setVisibility(View.VISIBLE);
-        } else {
-            detectTxt.setVisibility(View.GONE);
-        }
-        db.close();
+            }
+        });
+
+
     }
 
     private void loadImages() {

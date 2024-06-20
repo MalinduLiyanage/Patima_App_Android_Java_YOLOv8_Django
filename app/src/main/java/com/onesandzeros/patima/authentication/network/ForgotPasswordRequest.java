@@ -1,4 +1,4 @@
-package com.onesandzeros.patima.authentication.models;
+package com.onesandzeros.patima.authentication.network;
 
 public class ForgotPasswordRequest {
     private String email;

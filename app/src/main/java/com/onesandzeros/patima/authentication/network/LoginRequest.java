@@ -1,4 +1,4 @@
-package com.onesandzeros.patima.authentication.models;
+package com.onesandzeros.patima.authentication.network;
 
 public class LoginRequest {
     private String email;
