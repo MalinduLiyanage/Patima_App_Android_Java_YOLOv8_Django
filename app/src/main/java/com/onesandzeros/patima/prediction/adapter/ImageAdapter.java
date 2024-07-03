@@ -2,26 +2,25 @@ package com.onesandzeros.patima.prediction.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.onesandzeros.patima.R;
-import com.onesandzeros.patima.summary.activity.SummaryActivity;
 import com.onesandzeros.patima.core.utils.UrlUtils;
 import com.onesandzeros.patima.prediction.model.Image;
-import com.squareup.picasso.Picasso;
+import com.onesandzeros.patima.summary.activity.SummaryActivity;
 
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-
-    private List<Image> imageList;
-    private Context context;
+    private final List<Image> imageList;
+    private final Context context;
 
     public ImageAdapter(List<Image> imageList, Context context) {
         this.imageList = imageList;
@@ -43,10 +42,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         if (picturePath != null) {
             String fullUrl = UrlUtils.getFullUrl(picturePath);
-            Picasso.get()
-                    .load(fullUrl)
-                    .placeholder(R.drawable.placeholder_profile)
-                    .into(holder.objImg);
+            Uri fullUrlUri = Uri.parse(fullUrl);
+            holder.objImg.setImageURI(fullUrlUri);
+
+//            Picasso.get()
+//                    .load(fullUrl)
+//                    .placeholder(R.drawable.placeholder_profile)
+//                    .into(holder.objImg);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +58,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 intent.putExtra("imgId", image.getImageId());
                 intent.putExtra("base_path", image.getInputImagePath());
                 intent.putExtra("detection_path", image.getPredictedImagePath());
-                intent.putExtra("timestamp", image.getCreatedAt());
+                intent.putExtra("location", image.getTagName());
                 context.startActivity(intent);
 
             }
@@ -69,7 +71,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView objImg;
+        //        ImageView objImg;
+        SimpleDraweeView objImg;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

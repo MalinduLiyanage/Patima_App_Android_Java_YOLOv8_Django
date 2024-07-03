@@ -21,6 +21,8 @@ public class ApiClient {
 
             AuthInterceptor authInterceptor = new AuthInterceptor(context);
             httpClient.addInterceptor(authInterceptor);
+            UnauthorizedInterceptor unauthorizedInterceptor = new UnauthorizedInterceptor(context);
+            httpClient.addInterceptor(unauthorizedInterceptor);
 
             retrofit = new Retrofit.Builder()
                     .baseUrl(Config.BASE_URL)

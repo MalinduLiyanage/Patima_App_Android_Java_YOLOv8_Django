@@ -17,8 +17,8 @@ import com.google.gson.Gson;
 import com.onesandzeros.patima.MainActivity;
 import com.onesandzeros.patima.R;
 import com.onesandzeros.patima.authentication.network.AuthCommonResponse;
-import com.onesandzeros.patima.authentication.network.ForgotPasswordRequest;
 import com.onesandzeros.patima.authentication.network.AuthenticationApiService;
+import com.onesandzeros.patima.authentication.network.ForgotPasswordRequest;
 import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.shared.LoadingDialog;
 
@@ -56,6 +56,9 @@ public class PasswordForgotActivity extends AppCompatActivity {
 
     private boolean checkFields() {
         String email = email_.getText().toString();
+
+        email_.setError(null);
+
         boolean isValid = true;
         if (TextUtils.isEmpty(email)) {
             email_.setError("Email is required");

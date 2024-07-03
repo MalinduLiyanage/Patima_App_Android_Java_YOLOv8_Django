@@ -1,31 +1,34 @@
 package com.onesandzeros.patima.prediction.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.onesandzeros.patima.R;
-import com.onesandzeros.patima.SQLiteHelper;
 import com.onesandzeros.patima.core.utils.UrlUtils;
 import com.onesandzeros.patima.feedback.activity.FeedbackActivity;
+import com.onesandzeros.patima.prediction.model.Image;
+import com.onesandzeros.patima.summary.model.NearbyPredictions;
 import com.onesandzeros.patima.user.utils.ProfileManager;
 
 public class ViewComparisonActivity extends AppCompatActivity {
 
-    ImageView baseImg, processedImg;
-    ImageButton feedbackBtn, homeBtn;
+    //    ImageView baseImg, processedImg;
+    SimpleDraweeView baseImg, processedImg;
+    ImageButton feedbackBtn, homeBtn, backBtn;
     String input_image_path, predicted_image_path;
     int predictionId;
+    boolean isFeedback;
+
+    NearbyPredictions nearbyPrediction;
+    Image newPrediction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +39,16 @@ public class ViewComparisonActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            input_image_path = intent.getStringExtra("input_image_path");
-            predicted_image_path = intent.getStringExtra("predicted_image_path");
-            predictionId = intent.getIntExtra("predictionId", 0);
+            nearbyPrediction = (NearbyPredictions) intent.getSerializableExtra("nearbyPrediction");
+            newPrediction = (Image) intent.getSerializableExtra("newPrediction");
+            if (nearbyPrediction != null) {
+                input_image_path = nearbyPrediction.getInput_image_path();
+                predicted_image_path = nearbyPrediction.getPredicted_image_path();
+            } else {
+                input_image_path = newPrediction.getInputImagePath();
+                predicted_image_path = newPrediction.getPredictedImagePath();
+            }
+            isFeedback = intent.getBooleanExtra("isFeedback", true);
         } else {
             Toast.makeText(this, "NULL", Toast.LENGTH_SHORT).show();
         }
@@ -47,15 +57,20 @@ public class ViewComparisonActivity extends AppCompatActivity {
         processedImg = findViewById(R.id.processed_image);
         feedbackBtn = findViewById(R.id.feedback_Btn);
         homeBtn = findViewById(R.id.home_Btn);
+        backBtn = findViewById(R.id.return_button);
 
-        if (userTypest.equals("General Public")) {
+        if (userTypest.equals("General Public") || !isFeedback) {
             feedbackBtn.setVisibility(View.GONE);
             feedbackBtn.setEnabled(false);
         }
         String input_image_full_path = UrlUtils.getFullUrl(input_image_path);
         String predicted_image_full_path = UrlUtils.getFullUrl(predicted_image_path);
-        Glide.with(this).load(input_image_full_path).into(baseImg);
-        Glide.with(this).load(predicted_image_full_path).into(processedImg);
+        Uri input_image_uri = Uri.parse(input_image_full_path);
+        Uri predicted_image_uri = Uri.parse(predicted_image_full_path);
+        baseImg.setImageURI(input_image_uri);
+        processedImg.setImageURI(predicted_image_uri);
+//        Glide.with(this).load(input_image_full_path).into(baseImg);
+//        Glide.with(this).load(predicted_image_full_path).into(processedImg);
 
         processedImg.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -88,12 +103,21 @@ public class ViewComparisonActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewComparisonActivity.this, FeedbackActivity.class);
-                intent.putExtra("imgId", 0);
+                intent.putExtra("imgId", predictionId);
+                intent.putExtra("input_image_path", input_image_path);
+                intent.putExtra("predicted_image_path", predicted_image_path);
                 startActivity(intent);
             }
         });
 
         homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
