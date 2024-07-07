@@ -1,6 +1,7 @@
 package com.onesandzeros.patima.prediction.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -22,7 +23,7 @@ public class ViewComparisonActivity extends AppCompatActivity {
 
     //    ImageView baseImg, processedImg;
     SimpleDraweeView baseImg, processedImg;
-    ImageButton feedbackBtn, homeBtn, backBtn;
+    ImageButton feedbackBtn, homeBtn, backBtn, returnBtn;
     String input_image_path, predicted_image_path;
     int predictionId;
     boolean isFeedback;
@@ -34,6 +35,7 @@ public class ViewComparisonActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_comparison);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         String userTypest = ProfileManager.getProfileRole(this);
 
@@ -58,6 +60,14 @@ public class ViewComparisonActivity extends AppCompatActivity {
         feedbackBtn = findViewById(R.id.feedback_Btn);
         homeBtn = findViewById(R.id.home_Btn);
         backBtn = findViewById(R.id.return_button);
+        returnBtn = findViewById(R.id.return_button);
+
+        returnBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         if (userTypest.equals("General Public") || !isFeedback) {
             feedbackBtn.setVisibility(View.GONE);

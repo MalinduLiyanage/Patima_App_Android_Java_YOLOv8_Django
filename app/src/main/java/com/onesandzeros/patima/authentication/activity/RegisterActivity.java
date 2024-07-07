@@ -1,9 +1,12 @@
 package com.onesandzeros.patima.authentication.activity;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -221,6 +224,7 @@ public class RegisterActivity extends AppCompatActivity {
                             Toast.makeText(RegisterActivity.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
+                        Log.e(TAG, "An error occurred", e);
                         Toast.makeText(RegisterActivity.this, "Registration Failed", Toast.LENGTH_SHORT).show();
                     }
                 }

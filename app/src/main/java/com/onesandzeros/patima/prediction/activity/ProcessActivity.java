@@ -3,11 +3,13 @@ package com.onesandzeros.patima.prediction.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -71,12 +73,18 @@ public class ProcessActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         NewPredictResponse newPredictResponse = response.body();
                         if (newPredictResponse != null) {
-                            Intent intent = new Intent(ProcessActivity.this, ViewComparisonActivity.class);
-                            intent.putExtra("newPrediction", newPredictResponse.getPrediction());
-                            intent.putExtra("isFeedback", true);
-                            startActivity(intent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                            finish();
+                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Intent intent = new Intent(ProcessActivity.this, ViewComparisonActivity.class);
+                                    intent.putExtra("newPrediction", newPredictResponse.getPrediction());
+                                    intent.putExtra("isFeedback", true);
+                                    startActivity(intent);
+                                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                    finish();
+                                }
+                            }, 10000);
+
                         }
                     } else {
                         Toast.makeText(ProcessActivity.this, "Failed to process image", Toast.LENGTH_SHORT).show();
@@ -93,6 +101,14 @@ public class ProcessActivity extends AppCompatActivity {
                 }
             });
         }
+
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this,onBackPressedCallback);
 
 
     }

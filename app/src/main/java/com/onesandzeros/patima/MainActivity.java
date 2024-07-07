@@ -9,12 +9,15 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.drawee.generic.RoundingParams;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.onesandzeros.patima.authentication.utils.AuthenticationHelper;
+import com.onesandzeros.patima.core.activity.InternetActivity;
 import com.onesandzeros.patima.core.activity.PermissionActivity;
 import com.onesandzeros.patima.core.activity.WelcomeActivity;
 import com.onesandzeros.patima.core.network.ApiClient;
@@ -74,13 +79,18 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView imageContainer;
     private List<Image> imageList;
     private ImageAdapter imageAdapter;
+    ImageButton returnBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_main);
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         initialState();
 
@@ -124,6 +134,15 @@ public class MainActivity extends AppCompatActivity {
             longitudeString = "No Data";
         }
 
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        }
+        return false;
     }
 
     private Location getLocation(Context context) {
@@ -175,6 +194,12 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
             }
             loadAccount();
+        }
+
+        if (!isNetworkConnected(this)) {
+            Intent intent = new Intent(MainActivity.this, InternetActivity.class);
+            startActivity(intent);
+            finish();
         }
 
     }
@@ -302,6 +327,16 @@ public class MainActivity extends AppCompatActivity {
         admincontactBtn = findViewById(R.id.menu_contactadmin);
         appsettingBtn = findViewById(R.id.menu_appsettings);
         logoutBtn = findViewById(R.id.menu_logout);
+        returnBtn = findViewById(R.id.return_button);
+
+        returnBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHomeView();
+                homeButton.setImageResource(R.drawable.btn_home_round);
+                profileButton.setImageResource(R.drawable.btn_user);
+            }
+        });
 
         String username = ProfileManager.getProfileName(MainActivity.this);
 

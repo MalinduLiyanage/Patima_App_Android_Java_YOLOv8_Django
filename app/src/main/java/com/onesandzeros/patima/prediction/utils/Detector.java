@@ -30,26 +30,23 @@ import java.util.Map;
 
 public class Detector {
 
-    private static final float INPUT_MEAN = 0f;
-    private static final float INPUT_STANDARD_DEVIATION = 255f;
-    private static final DataType INPUT_IMAGE_TYPE = DataType.FLOAT32;
-    private static final DataType OUTPUT_IMAGE_TYPE = DataType.FLOAT32;
-    private static final float IOU_THRESHOLD = 0.5F;
-    private static float CONFIDENCE_THRESHOLD = 0F;
-    private final ImageProcessor imageProcessor = new ImageProcessor.Builder()
-            .add(new NormalizeOp(INPUT_MEAN, INPUT_STANDARD_DEVIATION))
-            .add(new CastOp(INPUT_IMAGE_TYPE))
-            .build();
-    private final Context context;
-    private final String modelPath;
-    private final String labelPath;
-    private final DetectorListener detectorListener;
-    private final List<String> labels = new ArrayList<>();
+    private Context context;
+    private String modelPath;
+    private String labelPath;
+    private DetectorListener detectorListener;
+
     private Interpreter interpreter;
+    private List<String> labels = new ArrayList<>();
+
     private int tensorWidth = 0;
     private int tensorHeight = 0;
     private int numChannel = 0;
     private int numElements = 0;
+
+    private final ImageProcessor imageProcessor = new ImageProcessor.Builder()
+            .add(new NormalizeOp(INPUT_MEAN, INPUT_STANDARD_DEVIATION))
+            .add(new CastOp(INPUT_IMAGE_TYPE))
+            .build();
 
     public Detector(Context context, String modelPath, String labelPath, DetectorListener detectorListener) {
         this.context = context;
@@ -61,6 +58,7 @@ public class Detector {
     public List<String> getLabels() {
         return labels;
     }
+
 
     public void setup(Float confThreshold) {
         try {
@@ -104,10 +102,9 @@ public class Detector {
     }
 
     public void detect(Bitmap frame) {
-        if (interpreter == null || tensorWidth == 0 || tensorHeight == 0 || numChannel == 0 || numElements == 0)
-            return;
+        if (interpreter == null || tensorWidth == 0 || tensorHeight == 0 || numChannel == 0 || numElements == 0) return;
 
-        if (frame == null) {
+        if(frame == null){
             return;
         }
 
@@ -150,7 +147,11 @@ public class Detector {
 
             Bitmap detectedBitmap = drawBoundingBoxes(frame.copy(Bitmap.Config.ARGB_8888, true), bestBoxes, labels);
 
-            detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap, headCount == 0 && bodyCount == 1);
+            if (headCount == 0 && bodyCount == 1) {
+                detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap,true);
+            }else{
+                detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap,false);
+            }
 
         }
     }
@@ -171,20 +172,15 @@ public class Detector {
             float right = box.getX2() * mutableBitmap.getWidth();
             float bottom = box.getY2() * mutableBitmap.getHeight();
 
-            // Draw bounding box
             canvas.drawRect(left, top, right, bottom, paint);
 
-            // Draw label
-            String label = labels.get(i);
-            //canvas.drawText(label, left, top - 10, paint);
         }
 
         return mutableBitmap;
     }
 
     public void detectGallery(Bitmap frame) {
-        if (interpreter == null || tensorWidth == 0 || tensorHeight == 0 || numChannel == 0 || numElements == 0)
-            return;
+        if (interpreter == null || tensorWidth == 0 || tensorHeight == 0 || numChannel == 0 || numElements == 0) return;
 
         long inferenceTime = SystemClock.uptimeMillis();
 
@@ -203,7 +199,32 @@ public class Detector {
         if (bestBoxes == null) {
             detectorListener.onEmptyDetectGallery();
         } else {
-            detectorListener.onDetectGallery(bestBoxes, inferenceTime);
+
+            Map<String, Integer> labelCounts = new HashMap<>();
+            for (BoundingBox box : bestBoxes) {
+                String label = box.getClsName();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    labelCounts.put(label, labelCounts.getOrDefault(label, 0) + 1);
+                }
+            }
+
+            int headCount = 0, bodyCount = 0;
+            for (Map.Entry<String, Integer> entry : labelCounts.entrySet()) {
+                String labelName = entry.getKey();
+                if (labelName.contains("head")) {
+                    headCount++;
+                } else if (labelName.contains("body")) {
+                    bodyCount++;
+                }
+            }
+
+            Bitmap detectedBitmap = drawBoundingBoxes(frame.copy(Bitmap.Config.ARGB_8888, true), bestBoxes, labels);
+
+            if (headCount == 0 && bodyCount == 1) {
+                detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap,true);
+            }else{
+                detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap,false);
+            }
         }
     }
 
@@ -270,13 +291,20 @@ public class Detector {
 
     public interface DetectorListener {
         void onEmptyDetect();
-
         void onDetect(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap detected, Bitmap detectedBitmap, boolean isautodetected);
 
-        void onDetectGallery(List<BoundingBox> bestBoxes, long inferenceTime);
+        void onDetectGallery(List<BoundingBox> bestBoxes, long inferenceTime, Bitmap detectedBitmap, boolean isdetected);
 
         void onEmptyDetectGallery();
     }
+
+    private static final float INPUT_MEAN = 0f;
+    private static final float INPUT_STANDARD_DEVIATION = 255f;
+    private static final DataType INPUT_IMAGE_TYPE = DataType.FLOAT32;
+    private static final DataType OUTPUT_IMAGE_TYPE = DataType.FLOAT32;
+    private static float CONFIDENCE_THRESHOLD = 0F;
+    private static final float IOU_THRESHOLD = 0.5F;
 }
+
 
 
