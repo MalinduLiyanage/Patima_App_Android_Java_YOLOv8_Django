@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Image> imageList;
     private ImageAdapter imageAdapter;
     ImageButton returnBtn;
+    int itemCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,14 +292,15 @@ public class MainActivity extends AppCompatActivity {
                         if (retrievePredictionsResponse != null) {
                             if (imageList.isEmpty()) {
                                 imageList.addAll(Arrays.asList(retrievePredictionsResponse.getPredictions()));
-                                detectTxt.setVisibility(View.GONE);
+                                //detectTxt.setVisibility(View.GONE);
                                 imageAdapter.notifyDataSetChanged();
+                                itemCount = imageList.size();
                             }
                         } else {
-                            detectTxt.setVisibility(View.VISIBLE);
+                            //detectTxt.setVisibility(View.VISIBLE);
                         }
                     } else {
-                        detectTxt.setVisibility(View.VISIBLE);
+                        //detectTxt.setVisibility(View.VISIBLE);
                     }
                 }
 
@@ -307,6 +309,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+        }
+
+        if(itemCount == 0){
+            detectTxt.setVisibility(View.VISIBLE);
+        }else{
+            detectTxt.setVisibility(View.GONE);
         }
     }
 

@@ -99,6 +99,7 @@ public class SummaryActivity extends AppCompatActivity {
             feedbackTextShow.setVisibility(View.GONE);
             feedbackContainer.setVisibility(View.GONE);
             feedbackBtn.setEnabled(false);
+            feedbackexpanderBtn.setVisibility(View.GONE);
         }
 
         loadImages();
@@ -152,7 +153,12 @@ public class SummaryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadPredictedFeedbacks();
+        String userTypest = ProfileManager.getProfileRole(this);
+
+        if (!userTypest.equals("General Public")) {
+            loadPredictedFeedbacks();
+        }
+
         nearbyImages();
         if (location != null) {
             double latitude = Double.parseDouble(location.split(",")[0]);

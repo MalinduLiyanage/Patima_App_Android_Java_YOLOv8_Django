@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -26,7 +27,6 @@ import retrofit2.Response;
 public class ViewFeedbackActivity extends AppCompatActivity {
 
     TextView detectTxt;
-
     ImageButton backBtn;
     private RecyclerView feedbackContainer;
     private List<Feedback> feedbackList;
@@ -69,6 +69,13 @@ public class ViewFeedbackActivity extends AppCompatActivity {
                     GridLayoutManager layoutManager = new GridLayoutManager(ViewFeedbackActivity.this, spanCount);
                     feedbackContainer.setLayoutManager(layoutManager);
                     feedbackContainer.setAdapter(feedbackAdapter);
+
+                    if(feedbackList.size() > 0){
+                        detectTxt.setVisibility(View.GONE);
+                    }else{
+                        detectTxt.setVisibility(View.VISIBLE);
+                    }
+
                 }
             }
 
