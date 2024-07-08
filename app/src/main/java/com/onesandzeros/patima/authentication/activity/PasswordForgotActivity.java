@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,18 +37,21 @@ public class PasswordForgotActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setContentView(R.layout.activity_password_forgot);
 
         loadingDialog = new LoadingDialog(this);
 
         email_ = findViewById(R.id.email_text);
         btnSubmit = findViewById(R.id.submit_btn);
 
-        btnSubmit.setOnClickListener(v -> {
-            if (checkFields()) {
-                // Call API
-                forgotPassword();
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkFields()) {
+                    // Call API
+                    forgotPassword();
+                }
             }
-
         });
     }
 
