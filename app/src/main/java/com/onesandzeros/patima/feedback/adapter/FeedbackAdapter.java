@@ -109,17 +109,17 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
 //                    .placeholder(R.drawable.placeholder_profile)
 //                    .into(holder.feedbackImg);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, ViewSingleFeedbackActivity.class);
-                    intent.putExtra("feedback", feedback);
-                    context.startActivity(intent);
-
-                }
-            });
-
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ViewSingleFeedbackActivity.class);
+                intent.putExtra("feedback", feedback);
+                context.startActivity(intent);
+
+            }
+        });
 
     }
 

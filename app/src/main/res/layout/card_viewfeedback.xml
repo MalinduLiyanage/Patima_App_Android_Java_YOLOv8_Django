@@ -25,6 +25,7 @@
                 android:padding="2dp"
                 app:actualImageScaleType="fitCenter"
                 app:cardCornerRadius="10dp"
+                android:visibility="visible"
                 fresco:placeholderImage="@drawable/ic_welcome"
                 fresco:placeholderImageScaleType="fitCenter" />
 
@@ -34,8 +35,9 @@
                 android:layout_height="80dp"
                 android:padding="10dp"
                 android:visibility="gone"
+                app:cardCornerRadius="10dp"
                 fresco:placeholderImage="@drawable/placeholder_profile"
-                fresco:placeholderImageScaleType="fitCenter" />
+                fresco:placeholderImageScaleType="centerCrop" />
 
             <!--            <ImageView-->
             <!--                android:id="@+id/feedimg_img"-->

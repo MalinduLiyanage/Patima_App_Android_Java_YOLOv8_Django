@@ -136,15 +136,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static boolean isNetworkConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm != null) {
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        }
-        return false;
-    }
-
     private Location getLocation(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null) {
@@ -196,15 +187,15 @@ public class MainActivity extends AppCompatActivity {
             loadAccount();
         }
 
+    }
+
+    private void loadAccount() {
+
         if (!isNetworkConnected(this)) {
             Intent intent = new Intent(MainActivity.this, InternetActivity.class);
             startActivity(intent);
             finish();
         }
-
-    }
-
-    private void loadAccount() {
 
         if (!Singleton.getInstance().isFunctionRun()) {
             LoadAccount.loadAccount(MainActivity.this, new LoadAccountCallback() {
@@ -218,6 +209,15 @@ public class MainActivity extends AppCompatActivity {
         } else {
             showHomeView();
         }
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        }
+        return false;
     }
 
     private void showHomeView() {

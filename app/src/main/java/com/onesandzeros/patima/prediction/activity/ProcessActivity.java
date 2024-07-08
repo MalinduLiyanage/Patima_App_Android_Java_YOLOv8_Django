@@ -1,6 +1,7 @@
 package com.onesandzeros.patima.prediction.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -41,6 +42,7 @@ public class ProcessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_process);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         lottie = findViewById(R.id.lottieAnimationView);
         processTxt = findViewById(R.id.process_txt);

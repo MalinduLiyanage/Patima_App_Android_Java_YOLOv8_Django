@@ -1,6 +1,7 @@
 package com.onesandzeros.patima.feedback.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -53,7 +54,7 @@ public class FeedbackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -86,15 +87,15 @@ public class FeedbackActivity extends AppCompatActivity {
 
         // Set up adapters for the spinners
         // Set up adapters for the spinners
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, answersQuestion1);
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<>(this, R.layout.spinner_item_layout, answersQuestion1);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         question1Spinner.setAdapter(adapter1);
 
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, answersQuestion2);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, R.layout.spinner_item_layout, answersQuestion2);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         question2Spinner.setAdapter(adapter2);
 
-        ArrayAdapter<String> adapter3 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, answersQuestion3);
+        ArrayAdapter<String> adapter3 = new ArrayAdapter<>(this, R.layout.spinner_item_layout, answersQuestion3);
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         question3Spinner.setAdapter(adapter3);
 

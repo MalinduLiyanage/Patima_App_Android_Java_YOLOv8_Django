@@ -1,11 +1,14 @@
 package com.onesandzeros.patima.summary.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,11 +52,9 @@ public class SummaryActivity extends AppCompatActivity {
     String basePath = null, detectionPath = null, location = null;
     int imgId = 0;
     FloatingActionButton feedbackBtn;
-    TextView feedbackTextShow, detectTxt, nearbydetectTxt, locationName;
+    TextView feedbackTextShow, detectTxt, nearbydetectTxt, locationTxt, locationName;
     RecyclerView feedbackContainer, nearbyContainer;
-
     ImageButton backBtn;
-
     //    private ImageView baseImg, processedImg;
     private SimpleDraweeView baseImg, processedImg;
     private List<Feedback> feedbackList;
@@ -61,11 +63,14 @@ public class SummaryActivity extends AppCompatActivity {
     private LocationAdapter locationAdapter;
 
     private LoadingDialog loadingDialog;
+    ImageView feedbackexpanderBtn;
+    boolean areFeedbacksexpanded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summary);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         loadingDialog = new LoadingDialog(this);
 
@@ -83,7 +88,9 @@ public class SummaryActivity extends AppCompatActivity {
         detectTxt = findViewById(R.id.detect_txt);
         nearbydetectTxt = findViewById(R.id.nearby_detect_txt);
         backBtn = findViewById(R.id.return_button);
+        locationTxt = findViewById(R.id.loc_text);
         locationName = findViewById(R.id.loc_name);
+        feedbackexpanderBtn = findViewById(R.id.btn_feedback_expand);
 
         String userTypest = ProfileManager.getProfileRole(this);
 
@@ -92,8 +99,6 @@ public class SummaryActivity extends AppCompatActivity {
             feedbackTextShow.setVisibility(View.GONE);
             feedbackContainer.setVisibility(View.GONE);
             feedbackBtn.setEnabled(false);
-        } else {
-            loadPredictedFeedbacks();
         }
 
         loadImages();
@@ -116,16 +121,46 @@ public class SummaryActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        feedbackexpanderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!areFeedbacksexpanded){
+                    areFeedbacksexpanded = true;
+                    feedbackexpanderBtn.setImageResource(R.drawable.ic_arrow_down);
+
+                    ViewGroup.LayoutParams params = feedbackContainer.getLayoutParams();
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    feedbackContainer.setLayoutParams(params);
+
+                }else{
+                    areFeedbacksexpanded = false;
+                    feedbackexpanderBtn.setImageResource(R.drawable.ic_arrow_right);
+
+                    int dpValue = 100;
+                    float density = getResources().getDisplayMetrics().density;
+                    int heightInPixels = (int) (dpValue * density);
+                    ViewGroup.LayoutParams layoutParams = feedbackContainer.getLayoutParams();
+                    layoutParams.height = heightInPixels;
+                    feedbackContainer.setLayoutParams(layoutParams);
+
+                }
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        loadPredictedFeedbacks();
+        nearbyImages();
         if (location != null) {
             double latitude = Double.parseDouble(location.split(",")[0]);
             double longitude = Double.parseDouble(location.split(",")[1]);
             reverseGeocode(latitude, longitude);
+            locationTxt.setText(location);
         } else {
+            locationTxt.setText("Image has no Location Data. Location based summary will not be available.");
             locationName.setVisibility(View.GONE);
         }
 
@@ -146,14 +181,21 @@ public class SummaryActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     List<Feedback> feedbacks = response.body().getFeedbacks();
                     feedbackList.addAll(feedbacks);
+                    Collections.reverse(feedbackList);
                     feedbackAdapter.notifyDataSetChanged();
                     if (feedbackList.size() == 0) {
                         detectTxt.setVisibility(View.VISIBLE);
+                        feedbackContainer.setVisibility(View.GONE);
+                        feedbackexpanderBtn.setVisibility(View.INVISIBLE);
+                        feedbackexpanderBtn.setEnabled(false);
                     } else {
                         detectTxt.setVisibility(View.GONE);
                     }
                 } else {
                     detectTxt.setVisibility(View.VISIBLE);
+                    feedbackContainer.setVisibility(View.GONE);
+                    feedbackexpanderBtn.setVisibility(View.INVISIBLE);
+                    feedbackexpanderBtn.setEnabled(false);
                 }
             }
 

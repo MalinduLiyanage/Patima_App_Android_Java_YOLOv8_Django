@@ -88,8 +88,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_margin="10dp"
                     android:backgroundTint="@color/colorPrimary"
-                    android:src="@drawable/ic_addfeedback"
-                    android:tooltipText="Add Feedback"
+                    app:srcCompat="@drawable/ic_addfeedback"
                     app:fabSize="normal" />
 
             </RelativeLayout>
@@ -159,6 +158,36 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp">
+
+                <TextView
+                    android:layout_weight="1"
+                    android:id="@+id/feedbackshow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:maxLines="1"
+                    android:text="Your Feedbacks for this Statue"
+                    android:textColor="@color/colorPrimaryDark">
+
+                </TextView>
+
+                <ImageView
+                    android:id="@+id/btn_feedback_expand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:src="@drawable/ic_arrow_right">
+
+                </ImageView>
+
+            </LinearLayout>
+
             <ScrollView
                 android:id="@+id/scroll_view"
                 android:layout_width="match_parent"
@@ -173,21 +202,10 @@
                     android:layout_marginBottom="10dp"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/feedbackshow"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:maxLines="1"
-                        android:text="Your Feedbacks for this Statue"
-                        android:textColor="@color/colorPrimaryDark">
-
-                    </TextView>
-
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/feedback_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="100dp">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
@@ -235,7 +253,6 @@
                         android:visibility="gone">
 
                     </TextView>
-
 
                 </LinearLayout>
 

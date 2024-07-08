@@ -1,8 +1,11 @@
 package com.onesandzeros.patima.user.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
+import com.onesandzeros.patima.MainActivity;
+import com.onesandzeros.patima.core.activity.InternetActivity;
 import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.user.model.User;
 import com.onesandzeros.patima.user.network.AccountApiService;

@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Patima</string>
+    <string-array name="options">
+        <item>Not accurate</item>
+        <item>Slightly accurate</item>
+        <item>Moderately accurate</item>
+        <item>Mostly accurate</item>
+        <item>Completely accurate</item>
+    </string-array>
+    <string-array name="options_three">
+        <item>Very Satisfied</item>
+        <item>Somewhat Satisfied</item>
+        <item>Neutral</item>
+        <item>Not Satisfied</item>
+        <item>Not applicable</item>
+    </string-array>
 </resources>

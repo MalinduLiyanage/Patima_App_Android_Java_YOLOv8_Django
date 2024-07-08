@@ -1,6 +1,7 @@
 package com.onesandzeros.patima.feedback.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -27,6 +28,7 @@ public class ViewSingleFeedbackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_single_feedback);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Intent intent = getIntent();
         Feedback feedback = (Feedback) intent.getSerializableExtra("feedback");
@@ -54,29 +56,29 @@ public class ViewSingleFeedbackActivity extends AppCompatActivity {
         int rating = feedback.getRating();
 
         if (rating == 1) {
-            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
+            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
             ratingLvlTxt.setText("1 out of 5 : Not Good at all!");
         } else if (rating == 2) {
-            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
+            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
             ratingLvlTxt.setText("2 out of 5 : Seems Okay");
         } else if (rating == 3) {
-            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
+            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
             ratingLvlTxt.setText("3 out of 5 : Neutral");
         } else if (rating == 4) {
-            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starFour.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
+            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starFour.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
             ratingLvlTxt.setText("4 out of 5 : Good!");
         } else if (rating == 5) {
-            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starFour.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
-            starFive.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled_small));
+            starOne.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starTwo.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starThree.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starFour.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
+            starFive.setImageDrawable(getResources().getDrawable(R.drawable.ic_rating_filled));
             ratingLvlTxt.setText("5 out of 5 : Great!");
         }
         String full_url = UrlUtils.getFullUrl(feedback.getPredicted_img());

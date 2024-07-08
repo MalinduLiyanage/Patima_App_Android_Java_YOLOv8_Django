@@ -44,6 +44,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
 //                .placeholder(R.drawable.placeholder_profile)
 //                .into(holder.objImg);
 
+        /*
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,7 +53,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ViewHo
                 intent.putExtra("isFeedback", false);
                 v.getContext().startActivity(intent);
             }
-        });
+        });*/
     }
 
     @Override

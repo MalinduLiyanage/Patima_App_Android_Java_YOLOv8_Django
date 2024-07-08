@@ -90,7 +90,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="20dp"
                             android:background="@color/colorPrimary"
-                            android:src="@drawable/ic_rating_notfilled_small">
+                            android:src="@drawable/ic_rating_notfilled">
 
                         </ImageButton>
 
@@ -100,7 +100,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="20dp"
                             android:background="@color/colorPrimary"
-                            android:src="@drawable/ic_rating_notfilled_small">
+                            android:src="@drawable/ic_rating_notfilled">
 
                         </ImageButton>
 
@@ -110,7 +110,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="20dp"
                             android:background="@color/colorPrimary"
-                            android:src="@drawable/ic_rating_notfilled_small">
+                            android:src="@drawable/ic_rating_notfilled">
 
                         </ImageButton>
 
@@ -120,7 +120,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="20dp"
                             android:background="@color/colorPrimary"
-                            android:src="@drawable/ic_rating_notfilled_small">
+                            android:src="@drawable/ic_rating_notfilled">
 
                         </ImageButton>
 
@@ -130,7 +130,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="20dp"
                             android:background="@color/colorPrimary"
-                            android:src="@drawable/ic_rating_notfilled_small">
+                            android:src="@drawable/ic_rating_notfilled">
 
                         </ImageButton>
 

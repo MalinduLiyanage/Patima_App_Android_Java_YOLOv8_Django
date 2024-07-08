@@ -1,6 +1,7 @@
 package com.onesandzeros.patima.settings.activity;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -26,10 +27,10 @@ public class ParametersActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_parameters);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        sharedPreferences = getSharedPreferences("Startup", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("patima", MODE_PRIVATE);
 
         DETECT_THRESHOLD = sharedPreferences.getFloat("CONFIDENCE_THRESHOLD", 0);
         thresholdSlider = findViewById(R.id.thresholdbar);

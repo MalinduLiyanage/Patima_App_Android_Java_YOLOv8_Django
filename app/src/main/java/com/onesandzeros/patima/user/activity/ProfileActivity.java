@@ -2,6 +2,7 @@ package com.onesandzeros.patima.user.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -57,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
     SimpleDraweeView userPic1;
     LinearLayout newpassContainer, confirmPassContainer;
     User account_details;
-    boolean editRequest = false;
+    boolean editRequest = false, isArcheologist = false;
     String changedpicture = null;
     private LoadingDialog loadingDialog;
 
@@ -65,6 +66,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         View parentLayout = findViewById(android.R.id.content);
 
@@ -264,6 +266,7 @@ public class ProfileActivity extends AppCompatActivity {
         newpassContainer.setVisibility(View.GONE);
         confirmPassContainer.setVisibility(View.GONE);
         delBtn.setVisibility(View.GONE);
+        isArcheologist = false;
 
         AccountApiService accountApiService = ApiClient.getClient(this).create(AccountApiService.class);
         Call<AccountResponse> call = accountApiService.retrieveAccount();
@@ -295,13 +298,14 @@ public class ProfileActivity extends AppCompatActivity {
                             userTypest = "General Public";
                             archaelogistId.setVisibility(View.GONE);
                         } else {
+                            isArcheologist = true;
                             userTypest = "Archaeologist";
                             archaelogistId.setText(String.valueOf(account_details.getArcheologistId()));
                         }
                         if (account_details.getIsAdmin() == 1) {
-                            adminRights = "yes";
+                            adminRights = "Yes";
                         } else {
-                            adminRights = "no";
+                            adminRights = "No";
                         }
                         userType.setText(userTypest);
                         userAdminrights.setText(adminRights);
@@ -327,7 +331,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         newpassContainer.setVisibility(View.VISIBLE);
         confirmPassContainer.setVisibility(View.VISIBLE);
-        delBtn.setVisibility(View.VISIBLE);
+        if(!isArcheologist){
+            delBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     private boolean checkFields() {

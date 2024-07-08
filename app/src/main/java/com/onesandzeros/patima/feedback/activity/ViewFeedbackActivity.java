@@ -1,5 +1,6 @@
 package com.onesandzeros.patima.feedback.activity;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -35,6 +36,7 @@ public class ViewFeedbackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_feedback);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         detectTxt = findViewById(R.id.detect_Txt);
         feedbackContainer = findViewById(R.id.feedback_container);
