@@ -146,10 +146,13 @@ public class LoginActivity extends AppCompatActivity {
                         LoginResponse errorResponse = new Gson().fromJson(response.errorBody().charStream(), LoginResponse.class);
                         if (statusCode == 422) {
                             emailTxt.setError(errorResponse.getMessage());
+                            Toast.makeText(LoginActivity.this, errorResponse.getMessage(), Toast.LENGTH_LONG).show();
                         } else if (statusCode == 401) {
                             passwordTxt.setError(errorResponse.getMessage());
+                            Toast.makeText(LoginActivity.this, errorResponse.getMessage(), Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(LoginActivity.this, errorResponse.getMessage(), Toast.LENGTH_SHORT).show();
+
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
