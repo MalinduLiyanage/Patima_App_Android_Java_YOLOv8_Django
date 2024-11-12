@@ -46,9 +46,11 @@ public class ViewComparisonActivity extends AppCompatActivity {
             if (nearbyPrediction != null) {
                 input_image_path = nearbyPrediction.getInput_image_path();
                 predicted_image_path = nearbyPrediction.getPredicted_image_path();
+                predictionId = newPrediction.getImageId();
             } else {
                 input_image_path = newPrediction.getInputImagePath();
                 predicted_image_path = newPrediction.getPredictedImagePath();
+                predictionId = newPrediction.getImageId();
             }
             isFeedback = intent.getBooleanExtra("isFeedback", true);
         } else {

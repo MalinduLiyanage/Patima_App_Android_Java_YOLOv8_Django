@@ -41,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView loginTxt, contactTxt;
     private EditText firstnameTxt, lastnameTxt, emailTxt, arcIdTxt, passwordTxt, confirmPasswordTxt;
     private Button registerBtn;
-    private String selectedRole;
+    private String selectedRole = "null";
 
     private LoadingDialog loadingDialog;
 
@@ -130,9 +130,10 @@ public class RegisterActivity extends AppCompatActivity {
         lastnameTxt.setError(null);
         emailTxt.setError(null);
 
-        if (selectedRole.equals("archeologist")) {
+        if ("archeologist".equals(selectedRole)) {
             arcId = arcIdTxt.getText().toString();
         }
+
         String password = passwordTxt.getText().toString();
         String confirmPassword = confirmPasswordTxt.getText().toString();
 
@@ -153,7 +154,7 @@ public class RegisterActivity extends AppCompatActivity {
                 isValid = false;
             }
         }
-        if (selectedRole.equals("archeologist")) {
+        if ("archeologist".equals(selectedRole)) {
             if (TextUtils.isEmpty(arcId)) {
                 arcIdTxt.setError("Archeological Id Required");
                 isValid = false;
@@ -174,13 +175,13 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if (!(TextUtils.isEmpty(password) && TextUtils.isEmpty(confirmPassword))) {
             if (!password.equals(confirmPassword)) {
-                confirmPasswordTxt.setError("Password Does Not match");
+                confirmPasswordTxt.setError("Password Does Not Match");
                 isValid = false;
             }
         }
         return isValid;
-
     }
+
 
     private void registerUser() {
         String firstname = firstnameTxt.getText().toString();
@@ -192,50 +193,54 @@ public class RegisterActivity extends AppCompatActivity {
         }
         String password = passwordTxt.getText().toString();
 
-        AuthenticationApiService authenticationApiService = ApiClient.getClient(this).create(AuthenticationApiService.class);
-        User user;
-        if (selectedRole.equals("archeologist")) {
-            user = new User(firstname, lastname, email, password, 2, Integer.parseInt(arcId));
-        } else {
-            user = new User(firstname, lastname, email, password, 1);
-        }
-        Call<AuthCommonResponse> call = authenticationApiService.register(user);
-        loadingDialog.show();
-        call.enqueue(new Callback<AuthCommonResponse>() {
-            @Override
-            public void onResponse(Call<AuthCommonResponse> call, Response<AuthCommonResponse> response) {
-                loadingDialog.dismiss();
-                int statusCode = response.code();
-                if (response.isSuccessful()) {
-                    AuthCommonResponse registerResponse = response.body();
-                    if (registerResponse != null) {
-                        Toast.makeText(RegisterActivity.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                } else {
-                    try {
-                        AuthCommonResponse registerResponse = new Gson().fromJson(response.errorBody().charStream(), AuthCommonResponse.class);
-                        if (statusCode == 409) {
-                            emailTxt.setError(registerResponse.getMessage());
-                        } else {
+        if(!selectedRole.equals("null")){
+            AuthenticationApiService authenticationApiService = ApiClient.getClient(this).create(AuthenticationApiService.class);
+            User user;
+            if (selectedRole.equals("archeologist")) {
+                user = new User(firstname, lastname, email, password, 2, Integer.parseInt(arcId));
+            } else {
+                user = new User(firstname, lastname, email, password, 1);
+            }
+            Call<AuthCommonResponse> call = authenticationApiService.register(user);
+            loadingDialog.show();
+            call.enqueue(new Callback<AuthCommonResponse>() {
+                @Override
+                public void onResponse(Call<AuthCommonResponse> call, Response<AuthCommonResponse> response) {
+                    loadingDialog.dismiss();
+                    int statusCode = response.code();
+                    if (response.isSuccessful()) {
+                        AuthCommonResponse registerResponse = response.body();
+                        if (registerResponse != null) {
                             Toast.makeText(RegisterActivity.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "An error occurred", e);
-                        Toast.makeText(RegisterActivity.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        try {
+                            AuthCommonResponse registerResponse = new Gson().fromJson(response.errorBody().charStream(), AuthCommonResponse.class);
+                            if (statusCode == 409) {
+                                emailTxt.setError(registerResponse.getMessage());
+                            } else {
+                                Toast.makeText(RegisterActivity.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "An error occurred", e);
+                            Toast.makeText(RegisterActivity.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
-            }
 
 
-            @Override
-            public void onFailure(Call<AuthCommonResponse> call, Throwable t) {
-                loadingDialog.dismiss();
-                Toast.makeText(RegisterActivity.this, "Registration Failed", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<AuthCommonResponse> call, Throwable t) {
+                    loadingDialog.dismiss();
+                    Toast.makeText(RegisterActivity.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            Toast.makeText(RegisterActivity.this, "Please select a role", Toast.LENGTH_SHORT).show();
+        }
 
     }
 }
