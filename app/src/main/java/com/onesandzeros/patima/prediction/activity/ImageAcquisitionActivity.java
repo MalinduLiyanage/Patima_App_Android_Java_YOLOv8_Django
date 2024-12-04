@@ -92,9 +92,9 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
     LinearLayout cameraBtnlayout;
     boolean isCameraOn = false, isCameraOff = true, isPredictable = false, tryAgain = false, autoPredict = false;
     private final int IMAGE_PICK = 100;
-    Bitmap bitmap, croppedBitmap, detectedBitmap;
+    Bitmap bitmap, croppedBitmap, detectedBitmap, croppedbody;
     private ImageCapture imageCapture;
-    String capturePath = "", galleryPath = "", inputImagePath = "", outputPath = "";
+    String capturePath = "", galleryPath = "", inputImagePath = "", outputPath = "", croppedcapturePath = "";
     TextView detected;
     private static final String TAG = "Camera";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
@@ -236,7 +236,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
                     handler.postDelayed(() -> {
                         binding.overlay.clear();
                         if(isPredictable){
-                            saveDetection(bitmap, detectedBitmap);
+                            saveDetection(bitmap, detectedBitmap,croppedbody);
                         }
                         if (detector != null) {
                             detector.shutdown();
@@ -465,7 +465,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
     }
 
     @Override
-    public void onDetect(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap originalCapture, Bitmap processedCapture, boolean isautoDetected) {
+    public void onDetect(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap originalCapture, Bitmap processedCapture, boolean isautoDetected, Bitmap croppedBody) {
         runOnUiThread(() -> {
             binding.inferenceTime.setText("Processing Delay : " + inferenceTime + " milliseconds");
             binding.overlay.setResults(boundingBoxes);
@@ -473,11 +473,12 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
 
             bitmap = originalCapture;
             detectedBitmap = processedCapture;
+            croppedbody = croppedBody;
 
             if(autoPredict){
                 if(isautoDetected){
                     isPredictable = true;
-                    saveDetection(bitmap, detectedBitmap);
+                    saveDetection(bitmap, detectedBitmap, croppedbody);
                     uiChanges();
                 }
             }else{
@@ -492,7 +493,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
         });
     }
 
-    private void saveDetection(Bitmap originalCapture, Bitmap processedCapture) {
+    private void saveDetection(Bitmap originalCapture, Bitmap processedCapture, Bitmap croppedbody) {
 
         cameraBtnlayout.setBackground(ContextCompat.getDrawable(ImageAcquisitionActivity.this, R.color.colorPrimary));
         isCameraOn = false;
@@ -519,8 +520,22 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
             originalCapture.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
             capturePath =  photoFile.getAbsolutePath();
+            Log.d(TAG,capturePath);
         } catch (IOException e) {
             Log.e(TAG, "Error saving bitmap", e);
+        }
+
+        //File saving part - croppedbody
+
+        File croppedphotoFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_croppedbody.jpg");
+
+        try (FileOutputStream croppedfos = new FileOutputStream(croppedphotoFile)) {
+            croppedbody.compress(Bitmap.CompressFormat.JPEG, 100, croppedfos);
+            croppedfos.flush();
+            croppedcapturePath = croppedphotoFile.getAbsolutePath();
+            Log.d(TAG,croppedcapturePath);
+        } catch (IOException e) {
+            Log.e(TAG, "Error saving cropped bitmap", e);
         }
 
         outputPath = saveBitmapToFile(processedCapture);
@@ -529,13 +544,14 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
 
         if (userId != -1) {
             if (outputPath != null) {
-                inputImagePath = capturePath;
+                //inputImagePath = capturePath;
+                inputImagePath = croppedcapturePath;
             }
         }
     }
 
     @Override
-    public void onDetectGallery(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap processedBitmap, boolean isdetected) {
+    public void onDetectGallery(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap processedBitmap, boolean isdetected, Bitmap croppedbody) {
         runOnUiThread(() -> {
             binding.inferenceTime.setText("Processing Delay : " + inferenceTime + " milliseconds");
             List<String> labels = detector.getLabels();
@@ -552,12 +568,18 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
 
                 if (userId != -1) {
                     outputPath = saveBitmapToFile(processedBitmap);
+
+                    File cropFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_croppedbody.jpg");
+                    try (FileOutputStream fos = new FileOutputStream(cropFile)) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        fos.flush();
+                        croppedcapturePath = cropFile.getAbsolutePath();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error saving bitmap", e);
+                    }
+
                     if (outputPath != null) {
-                        if (!galleryPath.isEmpty()) {
-                            inputImagePath = galleryPath; // Assuming this is the path of the input image
-                        }else{
-                            inputImagePath = capturePath;
-                        }
+                        inputImagePath = croppedcapturePath;
                     }
                 }
 

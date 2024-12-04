@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.SystemClock;
 
@@ -146,37 +147,44 @@ public class Detector {
             }
 
             Bitmap detectedBitmap = drawBoundingBoxes(frame.copy(Bitmap.Config.ARGB_8888, true), bestBoxes, labels);
-
+            Bitmap croppedBody = null;
             if (headCount == 0 && bodyCount == 1) {
-                detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap,true);
-            }else{
-                detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap,false);
+                for (BoundingBox box : bestBoxes) {
+                    if (box.getClsName().contains("body")) {
+                        int left = Math.max(0, (int) (box.getX1() * frame.getWidth()));
+                        int top = Math.max(0, (int) (box.getY1() * frame.getHeight()));
+                        int right = Math.min(frame.getWidth(), (int) (box.getX2() * frame.getWidth()));
+                        int bottom = Math.min(frame.getHeight(), (int) (box.getY2() * frame.getHeight()));
+                        croppedBody = Bitmap.createBitmap(frame, left, top, right - left, bottom - top);
+
+                        Bitmap canvasBitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(canvasBitmap);
+                        int canvasWidth = 256;
+                        int canvasHeight = 256;
+                        int targetHeight = (int) (canvasHeight * 0.75);
+                        int targetWidth = (int) ((float) croppedBody.getWidth() / croppedBody.getHeight() * targetHeight);
+
+                        if (targetWidth > canvasWidth) {
+                            targetWidth = canvasWidth;
+                            targetHeight = (int) ((float) croppedBody.getHeight() / croppedBody.getWidth() * targetWidth);
+                        }
+
+                        int leftMargin = (canvasWidth - targetWidth) / 2;
+                        int topMargin = canvasHeight - targetHeight;
+
+                        Rect srcRect = new Rect(0, 0, croppedBody.getWidth(), croppedBody.getHeight());
+                        Rect destRect = new Rect(leftMargin, topMargin, leftMargin + targetWidth, canvasHeight);
+                        canvas.drawBitmap(croppedBody, srcRect, destRect, null);
+                        detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap, true, canvasBitmap);
+                        break;
+                    }
+                }
+            }
+            else{
+                detectorListener.onDetect(bestBoxes, inferenceTime, frame, detectedBitmap,false,croppedBody);
             }
 
         }
-    }
-
-    private Bitmap drawBoundingBoxes(Bitmap bitmap, List<BoundingBox> boundingBoxes, List<String> labels) {
-        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas canvas = new Canvas(mutableBitmap);
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(8F);
-        paint.setColor(Color.GREEN);
-        paint.setTextSize(40);
-
-        for (int i = 0; i < boundingBoxes.size(); i++) {
-            BoundingBox box = boundingBoxes.get(i);
-            float left = box.getX1() * mutableBitmap.getWidth();
-            float top = box.getY1() * mutableBitmap.getHeight();
-            float right = box.getX2() * mutableBitmap.getWidth();
-            float bottom = box.getY2() * mutableBitmap.getHeight();
-
-            canvas.drawRect(left, top, right, bottom, paint);
-
-        }
-
-        return mutableBitmap;
     }
 
     public void detectGallery(Bitmap frame) {
@@ -219,13 +227,65 @@ public class Detector {
             }
 
             Bitmap detectedBitmap = drawBoundingBoxes(frame.copy(Bitmap.Config.ARGB_8888, true), bestBoxes, labels);
-
+            Bitmap croppedBody = null;
             if (headCount == 0 && bodyCount == 1) {
-                detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap,true);
+                for (BoundingBox box : bestBoxes) {
+                    if (box.getClsName().contains("body")) {
+                        int left = Math.max(0, (int) (box.getX1() * frame.getWidth()));
+                        int top = Math.max(0, (int) (box.getY1() * frame.getHeight()));
+                        int right = Math.min(frame.getWidth(), (int) (box.getX2() * frame.getWidth()));
+                        int bottom = Math.min(frame.getHeight(), (int) (box.getY2() * frame.getHeight()));
+                        croppedBody = Bitmap.createBitmap(frame, left, top, right - left, bottom - top);
+
+                        Bitmap canvasBitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(canvasBitmap);
+                        int canvasWidth = 256;
+                        int canvasHeight = 256;
+                        int targetHeight = (int) (canvasHeight * 0.75);
+                        int targetWidth = (int) ((float) croppedBody.getWidth() / croppedBody.getHeight() * targetHeight);
+
+                        if (targetWidth > canvasWidth) {
+                            targetWidth = canvasWidth;
+                            targetHeight = (int) ((float) croppedBody.getHeight() / croppedBody.getWidth() * targetWidth);
+                        }
+
+                        int leftMargin = (canvasWidth - targetWidth) / 2;
+                        int topMargin = canvasHeight - targetHeight;
+
+                        Rect srcRect = new Rect(0, 0, croppedBody.getWidth(), croppedBody.getHeight());
+                        Rect destRect = new Rect(leftMargin, topMargin, leftMargin + targetWidth, canvasHeight);
+                        canvas.drawBitmap(croppedBody, srcRect, destRect, null);
+                        detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap, true, canvasBitmap);
+                        break;
+                    }
+                }
             }else{
-                detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap,false);
+                detectorListener.onDetectGallery(bestBoxes, inferenceTime, detectedBitmap, false, croppedBody);
             }
         }
+    }
+
+    private Bitmap drawBoundingBoxes(Bitmap bitmap, List<BoundingBox> boundingBoxes, List<String> labels) {
+        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(mutableBitmap);
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(8F);
+        paint.setColor(Color.GREEN);
+        paint.setTextSize(40);
+
+        for (int i = 0; i < boundingBoxes.size(); i++) {
+            BoundingBox box = boundingBoxes.get(i);
+            float left = box.getX1() * mutableBitmap.getWidth();
+            float top = box.getY1() * mutableBitmap.getHeight();
+            float right = box.getX2() * mutableBitmap.getWidth();
+            float bottom = box.getY2() * mutableBitmap.getHeight();
+
+            canvas.drawRect(left, top, right, bottom, paint);
+
+        }
+
+        return mutableBitmap;
     }
 
     private List<BoundingBox> bestBox(float[] array) {
@@ -291,9 +351,9 @@ public class Detector {
 
     public interface DetectorListener {
         void onEmptyDetect();
-        void onDetect(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap detected, Bitmap detectedBitmap, boolean isautodetected);
+        void onDetect(List<BoundingBox> boundingBoxes, long inferenceTime, Bitmap detected, Bitmap detectedBitmap, boolean isautodetected, Bitmap croppedbody);
 
-        void onDetectGallery(List<BoundingBox> bestBoxes, long inferenceTime, Bitmap detectedBitmap, boolean isdetected);
+        void onDetectGallery(List<BoundingBox> bestBoxes, long inferenceTime, Bitmap detectedBitmap, boolean isdetected ,Bitmap croppedbody);
 
         void onEmptyDetectGallery();
     }

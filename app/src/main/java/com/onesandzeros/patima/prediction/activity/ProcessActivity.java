@@ -1,5 +1,7 @@
 package com.onesandzeros.patima.prediction.activity;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -61,6 +63,40 @@ public class ProcessActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "NULL", Toast.LENGTH_SHORT).show();
         }
+        prediction();
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this,onBackPressedCallback);
+
+
+    }
+
+    private void updateText() {
+        if (step < steps.length) {
+            processTxt.setText(steps[step]);
+            applySlideAnimation();
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    step++;
+                    updateText();
+                }
+            }, 2000);
+        }
+    }
+
+    private void applySlideAnimation() {
+        TranslateAnimation animate = new TranslateAnimation(-(processTxt.getWidth()), 0, 0, 0);
+        animate.setDuration(500); // Animation duration
+        processTxt.startAnimation(animate);
+    }
+
+    private void prediction(){
         if (image_path != null && latitude != null && longitude != null) {
             File file = new File(image_path);
             RequestBody reqFile = RequestBody.create(file, MediaType.parse("image/*"));
@@ -103,36 +139,7 @@ public class ProcessActivity extends AppCompatActivity {
                 }
             });
         }
-
-        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this,onBackPressedCallback);
-
-
     }
 
-    private void updateText() {
-        if (step < steps.length) {
-            processTxt.setText(steps[step]);
-            applySlideAnimation();
 
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    step++;
-                    updateText();
-                }
-            }, 2000);
-        }
-    }
-
-    private void applySlideAnimation() {
-        TranslateAnimation animate = new TranslateAnimation(-(processTxt.getWidth()), 0, 0, 0);
-        animate.setDuration(500); // Animation duration
-        processTxt.startAnimation(animate);
-    }
 }
