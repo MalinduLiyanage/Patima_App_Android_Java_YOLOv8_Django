@@ -44,7 +44,7 @@
                     <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@+id/base_image"
                         android:layout_width="300dp"
-                        android:layout_height="500dp"
+                        android:layout_height="400dp"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
                         android:visibility="gone"
@@ -54,7 +54,7 @@
                     <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@+id/processed_image"
                         android:layout_width="300dp"
-                        android:layout_height="500dp"
+                        android:layout_height="400dp"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
                         app:placeholderImage="@drawable/bg_placeholder"

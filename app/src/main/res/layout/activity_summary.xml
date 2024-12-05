@@ -91,6 +91,17 @@
                     app:srcCompat="@drawable/ic_addfeedback"
                     app:fabSize="normal" />
 
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_zoom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="10dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    app:srcCompat="@drawable/ic_zoom"
+                    app:fabSize="normal" />
+
             </RelativeLayout>
 
             <TextView

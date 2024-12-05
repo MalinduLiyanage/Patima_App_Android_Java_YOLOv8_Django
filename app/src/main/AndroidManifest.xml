@@ -32,6 +32,9 @@
         android:theme="@style/Theme.Patima"
         tools:targetApi="31">
         <activity
+            android:name=".summary.activity.ZoomActivity"
+            android:exported="false" />
+        <activity
             android:name=".core.activity.InternetActivity"
             android:exported="false" />
         <activity

@@ -51,7 +51,7 @@ import retrofit2.Response;
 public class SummaryActivity extends AppCompatActivity {
     String basePath = null, detectionPath = null, location = null;
     int imgId = 0;
-    FloatingActionButton feedbackBtn;
+    FloatingActionButton feedbackBtn, zoomBtn;
     TextView feedbackTextShow, detectTxt, nearbydetectTxt, locationTxt, locationName;
     RecyclerView feedbackContainer, nearbyContainer;
     ImageButton backBtn;
@@ -82,6 +82,7 @@ public class SummaryActivity extends AppCompatActivity {
         baseImg = findViewById(R.id.base_image);
         processedImg = findViewById(R.id.processed_image);
         feedbackBtn = findViewById(R.id.btn_feedback);
+        zoomBtn = findViewById(R.id.btn_zoom);
         feedbackTextShow = findViewById(R.id.feedbackshow);
         feedbackContainer = findViewById(R.id.feedback_container);
         nearbyContainer = findViewById(R.id.nearby_container);
@@ -109,6 +110,17 @@ public class SummaryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SummaryActivity.this, FeedbackActivity.class);
+                intent.putExtra("imgId", imgId);
+                intent.putExtra("input_image_path", basePath);
+                intent.putExtra("predicted_image_path", detectionPath);
+                startActivity(intent);
+            }
+        });
+
+        zoomBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SummaryActivity.this, ZoomActivity.class);
                 intent.putExtra("imgId", imgId);
                 intent.putExtra("input_image_path", basePath);
                 intent.putExtra("predicted_image_path", detectionPath);
@@ -240,13 +252,6 @@ public class SummaryActivity extends AppCompatActivity {
         processedImg.setImageURI(fullDetectionUri);
         baseImg.setImageURI(fullBaseUri);
 
-//        Glide.with(this)
-//                .load(fullDetectionPath)
-//                .into(processedImg);
-//
-//        Glide.with(this)
-//                .load(fullBasePath)
-//                .into(baseImg);
     }
 
     private void nearbyImages() {
@@ -336,4 +341,5 @@ public class SummaryActivity extends AppCompatActivity {
             }
         }).start();
     }
+
 }
