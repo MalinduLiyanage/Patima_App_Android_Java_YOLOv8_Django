@@ -1,6 +1,7 @@
 package com.onesandzeros.patima;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -75,12 +77,14 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout bottomNavigationBar;
     private ImageView homeButton, profileButton;
     private Boolean isHome = true;
+    private boolean isLoading = false;
     private CardView imagecaptureBtn;
     private RecyclerView imageContainer;
     private List<Image> imageList;
     private ImageAdapter imageAdapter;
     ImageButton returnBtn;
     int itemCount = 0;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,50 +228,54 @@ public class MainActivity extends AppCompatActivity {
     private void showHomeView() {
         isHome = true;
 
-        contentViewContainer.removeAllViews();
-        View homeView = getLayoutInflater().inflate(R.layout.view_home, null);
-        contentViewContainer.addView(homeView);
+        if (contentViewContainer != null) {
+            contentViewContainer.removeAllViews();
+            View homeView = getLayoutInflater().inflate(R.layout.view_home, null);
+            contentViewContainer.addView(homeView);
 
-        imagecaptureBtn = findViewById(R.id.img_capture_btn);
-//        profilePicture = findViewById(R.id.profile_img);
-        profileImg = findViewById(R.id.profile_img);
-        detectTxt = findViewById(R.id.detect_Txt);
+            imagecaptureBtn = findViewById(R.id.img_capture_btn);
+//          profilePicture = findViewById(R.id.profile_img);
+            profileImg = findViewById(R.id.profile_img);
+            detectTxt = findViewById(R.id.detect_Txt);
 
 
-        String userTypest = ProfileManager.getProfileRole(MainActivity.this);
-        String username = ProfileManager.getProfileName(MainActivity.this);
+            String userTypest = ProfileManager.getProfileRole(MainActivity.this);
+            String username = ProfileManager.getProfileName(MainActivity.this);
 
-        userName = findViewById(R.id.username_text);
-        userType = findViewById(R.id.usertype_text);
+            userName = findViewById(R.id.username_text);
+            userType = findViewById(R.id.usertype_text);
 
-        userName.setText(username);
-        userType.setText(userTypest);
+            userName.setText(username);
+            userType.setText(userTypest);
 
-        imagecaptureBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ImageAcquisitionActivity.class);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                startActivity(intent);
-            }
-        });
+            imagecaptureBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, ImageAcquisitionActivity.class);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    startActivity(intent);
+                }
+            });
 
-        String profilepicturePath = ProfileManager.getProfileImage(MainActivity.this);
-        if (profilepicturePath != null) {
+            String profilepicturePath = ProfileManager.getProfileImage(MainActivity.this);
+            if (profilepicturePath != null) {
 
-            String fullUrl = UrlUtils.getFullUrl(profilepicturePath);
-            RoundingParams roundingParams = RoundingParams.asCircle();
-            profileImg.getHierarchy().setRoundingParams(roundingParams);
-            Uri uri = Uri.parse(fullUrl);
-            profileImg.setImageURI(uri);
+                String fullUrl = UrlUtils.getFullUrl(profilepicturePath);
+                RoundingParams roundingParams = RoundingParams.asCircle();
+                profileImg.getHierarchy().setRoundingParams(roundingParams);
+                Uri uri = Uri.parse(fullUrl);
+                profileImg.setImageURI(uri);
 //            Picasso.get()
 //                    .load(fullUrl)
 //                    .placeholder(R.drawable.placeholder_profile)
 //                    .error(R.drawable.placeholder_profile)
 //                    .into(profilePicture);
-        }
+            }
 
-        detectedObjects();
+            detectedObjects();
+        } else {
+            Log.e("Error", "FrameLayout is null in showHomeView");
+        }
 
     }
 
@@ -280,44 +288,55 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, spanCount);
         imageContainer.setLayoutManager(layoutManager);
         imageContainer.setAdapter(imageAdapter);
-
-        PredictionApiService predictionApiService = ApiClient.getClient(this).create(PredictionApiService.class);
-        Call<RetrievePredictionsResponse> call = predictionApiService.retrievePredictions(1);
-        if (imageList.isEmpty()) {
-            call.enqueue(new Callback<RetrievePredictionsResponse>() {
-                @Override
-                public void onResponse(Call<RetrievePredictionsResponse> call, Response<RetrievePredictionsResponse> response) {
-                    if (response.isSuccessful()) {
-                        RetrievePredictionsResponse retrievePredictionsResponse = response.body();
-                        if (retrievePredictionsResponse != null) {
-                            if (imageList.isEmpty()) {
-                                imageList.addAll(Arrays.asList(retrievePredictionsResponse.getPredictions()));
-                                //detectTxt.setVisibility(View.GONE);
-                                imageAdapter.notifyDataSetChanged();
-                                itemCount = imageList.size();
-                            }
-                        } else {
-                            //detectTxt.setVisibility(View.VISIBLE);
-                        }
-                    } else {
-                        //detectTxt.setVisibility(View.VISIBLE);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<RetrievePredictionsResponse> call, Throwable t) {
-
-                }
-            });
-        }
-
-        if(itemCount == 0){
-            detectTxt.setVisibility(View.VISIBLE);
-        }else{
-            detectTxt.setVisibility(View.GONE);
-        }
+        fetchPredictions(1);
     }
 
+    private void fetchPredictions(int page) {
+        if (isLoading) return;
+        isLoading = true;
+
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Getting Predictions");
+            progressDialog.setCancelable(false);
+        }
+        progressDialog.setMessage("Loading Page " + String.valueOf(page));
+        progressDialog.show();
+
+        PredictionApiService predictionApiService = ApiClient.getClient(this).create(PredictionApiService.class);
+        Call<RetrievePredictionsResponse> call = predictionApiService.retrievePredictions(page);
+
+        call.enqueue(new Callback<RetrievePredictionsResponse>() {
+            @Override
+            public void onResponse(Call<RetrievePredictionsResponse> call, Response<RetrievePredictionsResponse> response) {
+                isLoading = false;
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+
+                if (response.isSuccessful()) {
+                    RetrievePredictionsResponse retrievePredictionsResponse = response.body();
+                    if (retrievePredictionsResponse != null && retrievePredictionsResponse.getPredictions() != null) {
+                        imageList.addAll(Arrays.asList(retrievePredictionsResponse.getPredictions()));
+                        imageAdapter.notifyDataSetChanged();
+                        fetchPredictions(page + 1);
+                        detectTxt.setVisibility(View.GONE);
+                    }
+                } else {
+                    detectTxt.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RetrievePredictionsResponse> call, Throwable t) {
+                isLoading = false;
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                Log.e("Error", "Failed to fetch predictions: " + t.getMessage());
+            }
+        });
+    }
 
     private void showProfileView() {
 
