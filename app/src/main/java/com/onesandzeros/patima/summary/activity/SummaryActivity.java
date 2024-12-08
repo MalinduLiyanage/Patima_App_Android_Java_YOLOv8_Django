@@ -268,6 +268,7 @@ public class SummaryActivity extends AppCompatActivity {
             public void onResponse(Call<NearbyPredictionsResponse> call, Response<NearbyPredictionsResponse> response) {
                 if (response.isSuccessful()) {
                     List<NearbyPredictions> predictions = response.body().getPredictions();
+                    locationList.clear();
                     locationList.addAll(predictions);
                     locationAdapter.notifyDataSetChanged();
                     if (locationList.size() == 0) {
