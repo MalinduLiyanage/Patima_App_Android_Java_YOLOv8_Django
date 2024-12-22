@@ -80,30 +80,27 @@ import java.util.concurrent.Executors;
 public class ImageAcquisitionActivity extends AppCompatActivity implements Detector.DetectorListener {
     private ActivityImageAcquisitionBinding binding;
     private final boolean isFrontCamera = false;
-    ImageButton galBtn, cameraBtn, flashBtn, returnBtn;
+    private ImageButton galBtn, cameraBtn, flashBtn, returnBtn;
     private Preview preview;
     private ImageAnalysis imageAnalyzer;
     private Camera camera;
     private ProcessCameraProvider cameraProvider;
     private Detector detector;
-    ImageView imageView;
+    private ImageView imageView;
     private ExecutorService cameraExecutor;
-    ConstraintLayout cameraContainer;
-    LinearLayout cameraBtnlayout;
+    private ConstraintLayout cameraContainer;
+    private LinearLayout cameraBtnlayout;
     boolean isCameraOn = false, isCameraOff = true, isPredictable = false, tryAgain = false, autoPredict = false;
     private final int IMAGE_PICK = 100;
-    Bitmap bitmap, croppedBitmap, detectedBitmap, croppedbody;
+    private Bitmap bitmap, croppedBitmap, detectedBitmap, croppedbody;
     private ImageCapture imageCapture;
-    String capturePath = "", galleryPath = "", inputImagePath = "", outputPath = "", croppedcapturePath = "";
-    TextView detected;
+    private String capturePath = "", galleryPath = "", inputImagePath = "", outputPath = "", croppedcapturePath = "", latitudeString = null, longitudeString = null;
+    private TextView detected;
     private static final String TAG = "Camera";
-    private static final int REQUEST_CODE_PERMISSIONS = 10;
-    int imgId = 0, isFlash = 0; // Flash Status - 1 = On / 0 = Off
-    private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.CAMERA};
-    String latitudeString = null, longitudeString = null;
-    Float CONFIDENCE_THRESHOLD = 0F;
+    private int isFlash = 0;
+    private Float CONFIDENCE_THRESHOLD = 0F;
     private CameraControl cameraControl;
-    Switch autoPredictSwitch;
+    private Switch autoPredictSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -282,7 +279,6 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
             public void onClick(View v) {
                 cameraControl = camera.getCameraControl();
                 if(isFlash == 0){
-                    //Turn on camera flash
                     isFlash = 1;
                     flashBtn.setBackgroundResource(R.drawable.bg_button_torch);
                     cameraControl.enableTorch(true);
@@ -352,7 +348,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
                 Log.e(TAG, "Retrying camera initialization...");
                 startCamera();
             }
-        }, 2000); // Retry after 2 seconds
+        }, 2000);
     }
 
     private void bindCameraUseCases() {
@@ -499,7 +495,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
         isCameraOn = false;
 
         imageView.setBackgroundResource(R.drawable.bg_placeholder);
-        stopCamera(); // Stop camera when selecting image from gallery
+        stopCamera();
         if (cameraContainer.getVisibility() == View.VISIBLE) {
             cameraContainer.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
@@ -511,9 +507,6 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setImageBitmap(processedCapture);
 
-
-        //File saving part
-
         File photoFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".jpg");
 
         try (FileOutputStream fos = new FileOutputStream(photoFile)) {
@@ -524,8 +517,6 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
         } catch (IOException e) {
             Log.e(TAG, "Error saving bitmap", e);
         }
-
-        //File saving part - croppedbody
 
         File croppedphotoFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_croppedbody.jpg");
 
@@ -544,7 +535,6 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
 
         if (userId != -1) {
             if (outputPath != null) {
-                //inputImagePath = capturePath;
                 inputImagePath = croppedcapturePath;
             }
         }
@@ -564,20 +554,22 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
                 isPredictable = true;
                 uiChanges();
 
+                File croppedphotoFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_croppedbody.jpg");
+
+                try (FileOutputStream croppedfos = new FileOutputStream(croppedphotoFile)) {
+                    croppedbody.compress(Bitmap.CompressFormat.JPEG, 100, croppedfos);
+                    croppedfos.flush();
+                    croppedcapturePath = croppedphotoFile.getAbsolutePath();
+                    Log.d(TAG,croppedcapturePath);
+                } catch (IOException e) {
+                    Log.e(TAG, "Error saving cropped bitmap", e);
+                }
+
+                outputPath = saveBitmapToFile(processedBitmap);
+
                 int userId = ProfileManager.getProfileId(this);
 
                 if (userId != -1) {
-                    outputPath = saveBitmapToFile(processedBitmap);
-
-                    File cropFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_croppedbody.jpg");
-                    try (FileOutputStream fos = new FileOutputStream(cropFile)) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        fos.flush();
-                        croppedcapturePath = cropFile.getAbsolutePath();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error saving bitmap", e);
-                    }
-
                     if (outputPath != null) {
                         inputImagePath = croppedcapturePath;
                     }
@@ -645,9 +637,8 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
         detector = new Detector(getBaseContext(), Config.MODEL_PATH, Config.LABELS_PATH, ImageAcquisitionActivity.this);
         detector.setup(CONFIDENCE_THRESHOLD);
         imageView.setImageDrawable(getDrawable(R.drawable.bg_placeholder));
-        //cameraBtn.setText("Open Camera");
         cameraBtn.setBackgroundResource(R.drawable.bg_button_opencamera);
-        stopCamera(); // Stop camera when selecting image from gallery
+        stopCamera();
         if(croppedBitmap != null){
             croppedBitmap = null;
         }
@@ -684,13 +675,10 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
     }
 
     private String removeRawSegment(String path) {
-        // Check if "/raw/" exists in the path
         int rawIndex = path.indexOf("/raw/");
         if (rawIndex != -1) {
-            // Remove "/raw/" and return the modified path
             return path.substring(0, rawIndex) + path.substring(rawIndex + 5);
         }
-        // If "/raw/" does not exist, return the original path
         return path;
     }
 
@@ -722,7 +710,7 @@ public class ImageAcquisitionActivity extends AppCompatActivity implements Detec
                 Manifest.permission.CAMERA
         };
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {  // API level 33
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             for (String permission : REQUIRED_PERMISSIONS_ANDROID_13) {
                 if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
