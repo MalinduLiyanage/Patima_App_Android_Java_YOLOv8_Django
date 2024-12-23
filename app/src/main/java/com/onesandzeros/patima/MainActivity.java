@@ -189,6 +189,12 @@ public class MainActivity extends AppCompatActivity {
                 editor.putFloat("CONFIDENCE_THRESHOLD", 0.6F);
                 editor.apply();
             }
+
+            if (!sharedPreferences.contains("SEGMENTATION_TYPE")) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("SEGMENTATION_TYPE", 0);
+                editor.apply();
+            }
             loadAccount();
         }
 

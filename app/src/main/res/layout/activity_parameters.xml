@@ -41,6 +41,70 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_weight="4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/seg_model_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="25dp"
+                                android:layout_marginTop="30dp"
+                                android:layout_marginRight="25dp"
+                                android:fontFamily="@font/poppins_bold"
+                                android:maxLines="1"
+                                android:text="CLOUD BASED SEGMENTATION"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="15sp">
+
+                            </TextView>
+
+                            <TextView
+                                android:id="@+id/seg_model_subtext"
+                                android:justificationMode="inter_word"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="25dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="25dp"
+                                android:layout_marginBottom="5dp"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="By default, the Application uses the Cloud based Segmentation method. If you prefer, you may use the Local Segmentation method as well. Enabling this Switch will download the Model into your device and it will take around 450 MB to download."
+                                android:textColor="@color/colorAccent"
+                                android:textSize="12sp">
+
+                            </TextView>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <Switch
+                                android:id="@+id/seg_model_switch"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                            </Switch>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -56,6 +120,7 @@
                     </TextView>
 
                     <TextView
+                        android:justificationMode="inter_word"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="25dp"

@@ -3,8 +3,12 @@ package com.onesandzeros.patima.prediction.activity;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -17,12 +21,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.onesandzeros.patima.R;
+import com.onesandzeros.patima.core.config.Config;
 import com.onesandzeros.patima.core.network.ApiClient;
 import com.onesandzeros.patima.prediction.model.Gps;
 import com.onesandzeros.patima.prediction.model.NewPredictResponse;
 import com.onesandzeros.patima.prediction.network.PredictionApiService;
+import com.onesandzeros.patima.prediction.utils.SegmentationModelHelper;
+
+import org.tensorflow.lite.Interpreter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -39,6 +52,10 @@ public class ProcessActivity extends AppCompatActivity {
     TextView processTxt;
     String image_path, latitude, longitude;
     private int step = 0;
+    private int SEGMENTATION_TYPE;
+    SharedPreferences sharedPreferences;
+    private Interpreter SegmentationInterpreter;
+    private Bitmap segmentedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +80,29 @@ public class ProcessActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "NULL", Toast.LENGTH_SHORT).show();
         }
-        prediction();
+        sharedPreferences = getSharedPreferences("patima", MODE_PRIVATE);
+        SEGMENTATION_TYPE = sharedPreferences.getInt("SEGMENTATION_TYPE", 0);
+
+        if (SEGMENTATION_TYPE == 0) {
+            prediction();
+        }else if (SEGMENTATION_TYPE == 1) {
+            File imageFile = new File(image_path);
+            if (imageFile.exists()) {
+                segmentedImage = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+
+                File SegmentationmodelFile = SegmentationModelHelper.getModelFile(this, Config.SEG_MODEL_FILE_NAME);
+                try {
+                    SegmentationInterpreter = new SegmentationModelHelper(SegmentationmodelFile).getInterpreter();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                offlineSegmentation();
+
+            }else{
+                Toast.makeText(this, "Image not found", Toast.LENGTH_SHORT).show();
+            }
+        }
         OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -86,7 +125,7 @@ public class ProcessActivity extends AppCompatActivity {
                     step++;
                     updateText();
                 }
-            }, 2000);
+            }, 4000);
         }
     }
 
@@ -121,7 +160,7 @@ public class ProcessActivity extends AppCompatActivity {
                                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                     finish();
                                 }
-                            }, 8000);
+                            }, 20000);
 
                         }
                     } else {
@@ -139,6 +178,44 @@ public class ProcessActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void offlineSegmentation() {
+
+        if (segmentedImage == null || SegmentationInterpreter == null) return;
+
+        new Thread(() -> {
+            float[][][][] input = SegmentationModelHelper.preprocessImage(segmentedImage, 256, 256);
+            float[][][][] output = new float[1][256][256][1];
+
+            SegmentationInterpreter.run(input, output);
+
+            Bitmap resultBitmap = SegmentationModelHelper.postProcessMask(output, 256, 256, segmentedImage);
+
+            runOnUiThread(() -> {
+
+                File photoFile = new File(getOutputDirectory(), new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + "_segmented.jpg");
+
+                try (FileOutputStream fos = new FileOutputStream(photoFile)) {
+                    resultBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    fos.flush();
+                    image_path =  photoFile.getAbsolutePath();
+                    Log.d(TAG,image_path);
+                    prediction();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error saving bitmap", e);
+                }
+
+            });
+        }).start();
+    }
+
+    private File getOutputDirectory() {
+        File mediaDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "tempCaptures");
+        if (!mediaDir.exists()) {
+            mediaDir.mkdirs();
+        }
+        return mediaDir;
     }
 
 
