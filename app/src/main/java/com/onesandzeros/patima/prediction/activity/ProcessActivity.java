@@ -57,8 +57,8 @@ public class ProcessActivity extends AppCompatActivity {
     private Interpreter SegmentationInterpreter;
     private Bitmap segmentedImage;
     private boolean isCloudSeg = true;
-    private int onlineupdateTxtInterval = 1000, offlineupdateTxtInterval = 5000;
-    private int onlineprocessTxtInterval = 5000, offlineprocessTxtInterval = 20000;
+    private int onlineupdateTxtInterval = 1600, offlineupdateTxtInterval = 5000;
+    private int onlineprocessTxtInterval = 8000, offlineprocessTxtInterval = 20000;
 
 
     @Override
