@@ -56,6 +56,10 @@ public class ProcessActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     private Interpreter SegmentationInterpreter;
     private Bitmap segmentedImage;
+    private boolean isCloudSeg = true;
+    private int onlineupdateTxtInterval = 1000, offlineupdateTxtInterval = 5000;
+    private int onlineprocessTxtInterval = 5000, offlineprocessTxtInterval = 20000;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +89,9 @@ public class ProcessActivity extends AppCompatActivity {
 
         if (SEGMENTATION_TYPE == 0) {
             prediction();
+            isCloudSeg = true;
         }else if (SEGMENTATION_TYPE == 1) {
+            isCloudSeg = false;
             File imageFile = new File(image_path);
             if (imageFile.exists()) {
                 segmentedImage = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
@@ -115,6 +121,7 @@ public class ProcessActivity extends AppCompatActivity {
     }
 
     private void updateText() {
+        int timeInterval = isCloudSeg ? onlineupdateTxtInterval : offlineupdateTxtInterval;
         if (step < steps.length) {
             processTxt.setText(steps[step]);
             applySlideAnimation();
@@ -125,7 +132,7 @@ public class ProcessActivity extends AppCompatActivity {
                     step++;
                     updateText();
                 }
-            }, 4000);
+            }, timeInterval);
         }
     }
 
@@ -150,6 +157,7 @@ public class ProcessActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         NewPredictResponse newPredictResponse = response.body();
                         if (newPredictResponse != null) {
+                            int totalProcesstime = isCloudSeg ? onlineprocessTxtInterval : offlineprocessTxtInterval;
                             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -160,7 +168,7 @@ public class ProcessActivity extends AppCompatActivity {
                                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                     finish();
                                 }
-                            }, 20000);
+                            }, totalProcesstime);
 
                         }
                     } else {
