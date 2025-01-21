@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -244,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
             profileImg = findViewById(R.id.profile_img);
             detectTxt = findViewById(R.id.detect_Txt);
 
+            Animation scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_popping);
+            imagecaptureBtn.startAnimation(scaleAnimation);
+
 
             String userTypest = ProfileManager.getProfileRole(MainActivity.this);
             String username = ProfileManager.getProfileName(MainActivity.this);
@@ -251,8 +256,8 @@ public class MainActivity extends AppCompatActivity {
             userName = findViewById(R.id.username_text);
             userType = findViewById(R.id.usertype_text);
 
-            userName.setText(username);
-            userType.setText(userTypest);
+            userName.setText("Welcome, " + username + "!");
+            userType.setText(userTypest + " User");
 
             imagecaptureBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
